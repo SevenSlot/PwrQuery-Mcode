@@ -1,0 +1,13 @@
+Imports/ETL the CAS530 ad hoc download
+let
+    Source = Excel.Workbook(File.Contents("C:\Work\Finance Analyics Projects\2. Inventory Valuation\CAS530 Ad Hoc Summary.xlsx"), null, true),
+    Sheet1_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+    #"Changed Type with Locale" = Table.TransformColumnTypes(#"Promoted Headers", {{"Item number", type text}}, "en-US"),
+    #"Removed Columns" = Table.RemoveColumns(#"Changed Type with Locale",{"P grp", "Sts"}),
+    #"Replaced Value" = Table.ReplaceValue(#"Removed Columns","+","",Replacer.ReplaceText,{"Item number"}),
+    #"Filtered Rows" = Table.SelectRows(#"Replaced Value", each true),
+    #"Replaced Value1" = Table.ReplaceValue(#"Filtered Rows","2000000000","2E09",Replacer.ReplaceText,{"Item number"}),
+    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","2E090000","2E13",Replacer.ReplaceText,{"Item number"})
+in
+    #"Replaced Value2"
